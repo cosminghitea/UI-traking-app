@@ -1,13 +1,15 @@
 import './App.scss';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
 } from 'react-router-dom';
+import axios from 'axios';
 import { LandingPage, NotFoundPage, DashboardPage } from './pages';
+import { Loading } from './components';
 
 function Register(
   username: string,
@@ -16,13 +18,18 @@ function Register(
   errorMessage: React.Dispatch<React.SetStateAction<string>>,
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
 ): void {
-  const checkAuthentication = username === 'test' && password === 'Cc@01234';
-  if (checkAuthentication) {
-    setIsLoggedIn(true);
-  } else {
-    errorState(checkAuthentication);
-    errorMessage('Username already exists');
-  }
+  axios.post('/api/users/register', {
+    username,
+    password,
+  })
+    .then(() => {
+      localStorage.setItem('LOGGED', 'TRUE');
+      localStorage.setItem('USERNAME', username);
+      setIsLoggedIn(true);
+    }).catch((err) => {
+      errorState(true);
+      errorMessage(err.message);
+    });
 }
 
 function Login(
@@ -32,18 +39,35 @@ function Login(
   errorMessage: React.Dispatch<React.SetStateAction<string>>,
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
 ): void {
-  const checkAuthentication = username === 'test' && password === 'Cc@01234';
+  axios.post('/api/users/login', {
+    username,
+    password,
+  })
+    .then(() => {
+      localStorage.setItem('LOGGED', 'TRUE');
+      localStorage.setItem('USERNAME', username);
 
-  if (checkAuthentication) {
-    setIsLoggedIn(true);
-  } else {
-    errorState(checkAuthentication);
-    errorMessage('Incorrect Username or Password');
-  }
+      setIsLoggedIn(true);
+    }).catch((err) => {
+      errorState(false);
+      errorMessage(err.message);
+    });
 }
 
 function App(): JSX.Element {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem('LOGGED') === 'TRUE') {
+      setIsLoggedIn(true);
+    }
+    setLoading(false);
+  }, [isLoggedIn, loading]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Router>
@@ -85,7 +109,11 @@ function App(): JSX.Element {
           </Route>
           <Route exact path="/dashboard">
             {isLoggedIn
-              ? (<DashboardPage />)
+              ? (
+                <DashboardPage
+                  setIsLoggedIn={setIsLoggedIn}
+                />
+              )
               : <Redirect exact from="/dashboard" to="/login" />}
           </Route>
           <Route exact path="/pageNotFound">

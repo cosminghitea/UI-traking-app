@@ -17,48 +17,70 @@ const tagInput = (
 };
 
 const addTag = (
-  tagValue: string,
+  tags: string,
   tagsList: string[],
   setErrorTag: React.Dispatch<React.SetStateAction<IFormFieldError | boolean>>,
   setTagValue: React.Dispatch<React.SetStateAction<string>>,
   setTagList: React.Dispatch<React.SetStateAction<string[]>>,
 ): void => {
-  if (isEmpty(tagValue)) {
+  if (isEmpty(tags)) {
     setErrorTag({
-      content: 'Please enter a valid email address',
+      content: 'Please enter a valid tag',
     });
     return;
   }
-  if (tagsList.includes(tagValue)) {
+  if (tagsList.includes(tags)) {
     setErrorTag({
       content: 'Tag already added',
     });
     return;
   }
   setErrorTag(false);
-  setTagList((arr) => [...arr, tagValue]);
+  setTagList((arr) => [...arr, tags]);
   setTagValue('');
 };
 
-const ModalForm = (): JSX.Element => {
-  const [tagValue, setTagValue] = useState('');
-  const [tagsList, setTagList] = useState<string[]>([]);
+function onChangeData(
+  value: string,
+  setState: React.Dispatch<React.SetStateAction<string>>,
+): void {
+  setState(value);
+}
+
+const ModalForm = (props: any): JSX.Element => {
+  const {
+    tagsList, setName, setDescription, setDueDate, setTagList,
+  } = props;
+  const [tags, setTagValue] = useState('');
   const [errorTag, setErrorTag] = useState<IFormFieldError | boolean>(false);
 
   return (
     <Form error>
-      <Form.Input label="Name" placeholder="Set name for task" />
+      <Form.Input
+        id="name"
+        label="Name"
+        placeholder="Set name for task"
+        onChange={(event, data) => {
+          onChangeData(data.value, setName);
+        }}
+      />
       <Form.Field
-        id="modal-form-description"
+        id="description"
         control={TextArea}
         label="Description"
         placeholder="Description"
+        onChange={(event: any, data: any) => {
+          onChangeData(data.value, setDescription);
+        }}
       />
       <Form.Field
-        id="modal-form-description"
+        id="dueDate"
         control={SemanticDatePicker}
         label="Due Date"
         placeholder="Due Date"
+        onChange={(event: any, data: any) => {
+          onChangeData(data.value, setDueDate);
+        }}
       />
       <Form.Group>
         <Form.Input
@@ -71,7 +93,7 @@ const ModalForm = (): JSX.Element => {
           positive
           className="ModalFormButton"
           onClick={() => addTag(
-            tagValue,
+            tags,
             tagsList,
             setErrorTag,
             setTagValue,

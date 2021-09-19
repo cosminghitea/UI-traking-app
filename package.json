@@ -10,6 +10,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.21",
     "@types/react-dom": "^17.0.0",
+    "axios": "^0.21.4",
     "lodash": "^4.17.21",
     "node-sass": "^4.14.1",
     "react": "^17.0.2",
@@ -41,6 +42,7 @@
       "last 1 safari version"
     ]
   },
+  "proxy": "https://0.0.0.0:4000",
   "devDependencies": {
     "@types/lodash": "^4.14.173",
     "@types/react-router-dom": "^5.1.9",
